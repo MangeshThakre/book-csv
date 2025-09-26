@@ -1,11 +1,11 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
 import "./App.css";
-import DemoDataList from "./components/DemoDataList";
+import DataTable from "./components/DataTable";
 import { faker } from "@faker-js/faker";
 
 function App() {
-  const [demoData, setDemoData] = useState([]);
+  const [booksData, setBooksData] = useState([]);
 
   const handleDemoData = () => {
     function demoData() {
@@ -21,21 +21,44 @@ function App() {
     const data = faker.helpers.multiple(demoData, {
       count: 10
     });
+    setBooksData(data);
+    localStorage.setItem("booksData", JSON.stringify(data));
     return data;
   };
 
-  return (
-    <div className="w-full h-[100vh] bg-blue-50">
-      {/* nav bar */}
-      <nav className="w-full h-[90px] bg-blue-200 shadow-l"> </nav>
-      {/* navbar */}
+  useEffect(() => {
+    const data = localStorage.getItem("booksData");
+    if (data) {
+      setBooksData(JSON.parse(data));
+    }
+  }, []);
 
-      {demoData.length > 0 ? (
-        <DemoDataList demoData={demoData} />
+  return (
+    <div className="w-full h-[100vh] bg-blue-50 overflow-y-scroll">
+      {/* nav bar */}
+      <nav className="w-full h-[90px] bg-blue-200 shadow-l  sticky top-0"></nav>
+      {/* navbar end*/}
+
+      {booksData.length > 0 ? (
+        <>
+          {/* select csv file button */}
+          <button
+            type="button"
+            className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+            onClick={() => {
+              localStorage.removeItem("BooksData");
+              setBooksData([]);
+            }}
+          >
+            select file
+          </button>
+          {/* select csv file button end */}
+          {/* data table */}
+          <DataTable booksData={booksData} setBooksData={setBooksData} />
+        </>
       ) : (
         <div className="w-full p-4 h flex flex-col justify-center items-center gap-4">
           <p className="text-black">No Data</p>
-
           <div className="">
             <input
               type="file"
@@ -47,7 +70,7 @@ function App() {
               type="button"
               className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5  dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
               onClick={() => {
-                setDemoData(handleDemoData());
+                handleDemoData();
               }}
             >
               demo Data
